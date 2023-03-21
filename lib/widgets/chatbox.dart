@@ -13,21 +13,23 @@ class ChatBox extends StatelessWidget {
       children: [
         Container(
           margin: EdgeInsets.only(right: 16),
-          child: CircleAvatar(
-            child: Text(sender[0]),
-          ),
+          child: sender == 'bot'
+              ? CircleAvatar(
+                  child: Text(sender[0]),
+                )
+              : null,
         ),
         Expanded(
             child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: sender == 'bot'
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.end,
           children: [
-            Text(
-              sender,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
             Container(
-              margin: const EdgeInsets.only(top: 5),
-              child: Text(text),
+              margin: const EdgeInsets.only(top: 15),
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(color: Colors.yellow),
+              child: Text(text.trim()),
             )
           ],
         ))

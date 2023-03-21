@@ -22,48 +22,37 @@ class _MyHomePageState extends State<MyHomePage> {
   late OpenAI chatGPT;
   final tController = StreamController<CTResponse?>.broadcast();
 
-  StreamSubscription? _subscription;
-  void _translateEngToThai() async {
+  void _talkToChatGPT() async {
+    ChatBox message = ChatBox(sender: 'user', text: textController.text);
+    setState(() {
+      messages.insert(0, message);
+    });
+
+    textController.clear();
+
     final request = CompleteText(
-        prompt: textController.text.toString(),
-        maxTokens: 200,
-        model: kTextDavinci3);
+        prompt: message.text.toString(), maxTokens: 200, model: kTextDavinci3);
+    String? result;
 
     chatGPT
         .onCompletionStream(request: request)
         .asBroadcastStream()
         .listen((res) {
       tController.sink.add(res);
-      log(res.toString());
+      result = res!.choices.last.text;
+      ChatBox GPTtext = ChatBox(sender: 'bot', text: result!);
+      bool alreadyExists = messages.any((item) => item.text == GPTtext.text);
+
+      if (!alreadyExists) {
+        setState(() {
+          messages.insert(0, GPTtext);
+        });
+      }
+
+      log(GPTtext.text);
     }).onError((err) {
-      print("$err");
+      log("$err");
     });
-  }
-
-  void _sendMessage() async {
-    ChatBox message = ChatBox(sender: 'user', text: textController.text);
-
-    setState(() {
-      messages.insert(0, message);
-    });
-    textController.clear();
-    final tController = StreamController<CTResponse?>.broadcast();
-
-    // final request = CompleteText(
-    //     prompt: translateEngToThai(word: message.text.toString()),
-    //     model: kTextDavinci3,
-    //     maxTokens: 200);
-
-    // _subscription =
-    //     chatGPT.onCompletionStream(request: request).listen((event) {
-    //   ChatBox botText = ChatBox(sender: 'bot', text: event!.choices[0].text);
-    //   log(event.choices[0].text);
-    //   log(botText.text);
-
-    //   setState(() {
-    //     messages.insert(0, botText);
-    //   });
-    // });
   }
 
   @override
@@ -82,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     textController.dispose();
-    _subscription?.cancel();
+
     tController.close();
     chatGPT.close();
     // TODO: implement dispose
@@ -101,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              //heading
               const Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
@@ -114,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  padding: EdgeInsets.all(10).copyWith(top: 30),
+                  padding: const EdgeInsets.all(10).copyWith(top: 30),
                   height: size.height * (2 / 2.5),
                   width: double.maxFinite,
                   decoration: const BoxDecoration(
@@ -126,18 +116,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       //the result card gotten from pub dev
-                      _resultCard(size, tController),
+                      // _resultCard(size, tController),
 
                       //messages
-                      // Expanded(
-                      //     child: ListView.builder(
-                      //   padding: Vx.m8,
-                      //   reverse: true,
-                      //   itemCount: messages.length,
-                      //   itemBuilder: (context, index) {
-                      //     return messages[index];
-                      //   },
-                      // )),
+                      Expanded(
+                          child: ListView.builder(
+                        padding: Vx.m8,
+                        reverse: true,
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          return messages[index];
+                        },
+                      )),
                       //textfield
                       Padding(
                         padding: const EdgeInsets.only(
@@ -152,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               suffix: GestureDetector(
                                 onTap: () {
                                   // return _sendMessage();
-                                  return _translateEngToThai();
+                                  return _talkToChatGPT();
                                 },
                                 child: Container(
                                     decoration: BoxDecoration(
@@ -167,7 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     )),
                               ),
                               onSubmitted: (value) {
-                                return _translateEngToThai();
+                                return _talkToChatGPT();
                               },
                               decoration: BoxDecoration(
                                   color: Colors.grey[200],
