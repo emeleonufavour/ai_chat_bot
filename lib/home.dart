@@ -69,10 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     chatGPT = OpenAI.instance.build(
-        token: '',
+        token: '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',
         baseOption: HttpSetup(
-            receiveTimeout: const Duration(seconds: 5),
-            connectTimeout: const Duration(seconds: 5)),
+            receiveTimeout: const Duration(seconds: 10),
+            connectTimeout: const Duration(seconds: 10)),
         isLogger: true);
 
     // TODO: implement initState
@@ -125,16 +125,19 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      //the result card gotten from pub dev
+                      _resultCard(size, tController),
+
                       //messages
-                      Expanded(
-                          child: ListView.builder(
-                        padding: Vx.m8,
-                        reverse: true,
-                        itemCount: messages.length,
-                        itemBuilder: (context, index) {
-                          return messages[index];
-                        },
-                      )),
+                      // Expanded(
+                      //     child: ListView.builder(
+                      //   padding: Vx.m8,
+                      //   reverse: true,
+                      //   itemCount: messages.length,
+                      //   itemBuilder: (context, index) {
+                      //     return messages[index];
+                      //   },
+                      // )),
                       //textfield
                       Padding(
                         padding: const EdgeInsets.only(
@@ -148,7 +151,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               //send button
                               suffix: GestureDetector(
                                 onTap: () {
-                                  return _sendMessage();
+                                  // return _sendMessage();
+                                  return _translateEngToThai();
                                 },
                                 child: Container(
                                     decoration: BoxDecoration(
@@ -163,7 +167,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     )),
                               ),
                               onSubmitted: (value) {
-                                return _sendMessage();
+                                return _translateEngToThai();
                               },
                               decoration: BoxDecoration(
                                   color: Colors.grey[200],
@@ -180,4 +184,60 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
+
+Widget _resultCard(Size size, StreamController<CTResponse?> tController) {
+  return StreamBuilder<CTResponse?>(
+    stream: tController.stream,
+    builder: (context, snapshot) {
+      final text = snapshot.data?.choices.last.text ??
+          "Hey there. I am your AI chatbot. Ask me sth";
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 32.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        alignment: Alignment.bottomCenter,
+        width: size.width * .86,
+        height: size.height * .3,
+        decoration: BoxDecoration(),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Text(
+                text,
+                style: const TextStyle(color: Colors.black, fontSize: 18.0),
+              ),
+              SizedBox(
+                width: size.width,
+                child: const Divider(
+                  color: Colors.grey,
+                  thickness: 1,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: const [
+                    Icon(
+                      Icons.copy_outlined,
+                      color: Colors.grey,
+                      size: 22.0,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Icon(
+                        Icons.delete_forever,
+                        color: Colors.grey,
+                        size: 22.0,
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
