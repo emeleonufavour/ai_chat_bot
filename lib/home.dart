@@ -23,7 +23,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     chatGPT = OpenAI.instance.build(
-        token: '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',
+        token: '', //get secret token from Open AI website
         baseOption: HttpSetup(
             receiveTimeout: const Duration(seconds: 30),
             connectTimeout: const Duration(seconds: 30)),
