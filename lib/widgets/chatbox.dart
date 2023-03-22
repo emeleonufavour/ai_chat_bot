@@ -11,14 +11,6 @@ class ChatBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(
-          margin: EdgeInsets.only(right: 16),
-          child: sender == 'bot'
-              ? CircleAvatar(
-                  child: Text(sender[0]),
-                )
-              : null,
-        ),
         Expanded(
             child: Column(
           crossAxisAlignment: sender == 'bot'
@@ -28,8 +20,21 @@ class ChatBox extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(top: 15),
               padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(color: Colors.yellow),
-              child: Text(text.trim()),
+              decoration: BoxDecoration(
+                  color: sender == 'bot' ? Colors.grey[600] : Colors.blue,
+                  borderRadius: sender == 'bot'
+                      ? const BorderRadius.only(
+                          topRight: Radius.circular(20),
+                          topLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(10))
+                      : const BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(10),
+                          bottomLeft: Radius.circular(10))),
+              child: Text(
+                text.trim(),
+                style: const TextStyle(color: Colors.white),
+              ),
             )
           ],
         ))
